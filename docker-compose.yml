@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Base de données pour Patient Service
+  postgres-patient:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: patientdb
+      POSTGRES_USER: patient_user
+      POSTGRES_PASSWORD: patient_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/data/postgres-patient:/var/lib/postgresql/data
+
+  # Base de données pour Appointment Service
+  mysql-appointment:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: appointmentdb
+      MYSQL_USER: appointment_user
+      MYSQL_PASSWORD: appointment_pass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/data/mysql-appointment:/var/lib/mysql
+
+  # MongoDB pour Laboratory Service
+  mongodb-laboratory:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./docker/data/mongodb:/data/db
+
+  # Elasticsearch pour Reporting Service
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./docker/data/elasticsearch:/usr/share/elasticsearch/data
+
+  # Kafka pour messaging
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1

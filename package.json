@@ -1,0 +1,28 @@
+{
+  "name": "myheart-soa-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:auth": "cd services/auth-service && npm start",
+    "start:patient": "cd services/patient-service && npm start",
+    "start:appointment": "cd services/appointment-service && npm start",
+    "dev:auth": "cd services/auth-service && npm run dev",
+    "dev:patient": "cd services/patient-service && npm run dev",
+    "install:all": "npm install && for dir in services/*; do (cd $dir && npm install); done",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asskourmohamed/MyHeart-SOA-Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/asskourmohamed/MyHeart-SOA-Project/issues"
+  },
+  "homepage": "https://github.com/asskourmohamed/MyHeart-SOA-Project#readme"
+}
