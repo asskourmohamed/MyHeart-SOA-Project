@@ -22,7 +22,7 @@ services:
       MYSQL_PASSWORD: appointment_pass
       MYSQL_ROOT_PASSWORD: rootpass
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - ./docker/data/mysql-appointment:/var/lib/mysql
 
