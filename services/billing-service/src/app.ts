@@ -4,27 +4,10 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
-
-// CHARGER DOTENV AVEC CHEMIN ABSOLU
-const envPath = path.resolve(__dirname, '../.env');
-console.log('📁 Chargement du fichier .env depuis:', envPath);
-
-const result = dotenv.config({ path: envPath });
-
-if (result.error) {
-  console.error('❌ Erreur lors du chargement de .env:', result.error);
-} else {
-  console.log('✅ Fichier .env chargé avec succès');
-}
-
-console.log('🔧 Environnement chargé:');
-console.log('- PORT:', process.env.PORT);
-console.log('- JWT_SECRET:', process.env.JWT_SECRET ? '✓ Défini' : '✗ NON DÉFINI');
-console.log('- MONGODB_URI:', process.env.MONGODB_URI ? '✓ Défini' : '✗ NON DÉFINI');
-console.log('- NODE_ENV:', process.env.NODE_ENV);
-
 import billingRoutes from './routes/billing.routes';
 import { connectDatabase } from './config/database';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3004;

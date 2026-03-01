@@ -50,9 +50,8 @@ const InvoiceItemSchema = new Schema<IInvoiceItem>({
 const InvoiceSchema = new Schema<IInvoice>({
   invoiceNumber: { 
     type: String, 
-    required: true, 
     unique: true,
-    index: true 
+    sparse: true // Permet de ne pas valider l'unicité si le champ n'existe pas
   },
   patientId: { 
     type: String, 
@@ -105,21 +104,33 @@ const InvoiceSchema = new Schema<IInvoice>({
 InvoiceSchema.index({ patientId: 1, status: 1 });
 InvoiceSchema.index({ issueDate: 1, status: 1 });
 
-// Middleware pour générer le numéro de facture avant la création
-InvoiceSchema.pre('save', async function() {
-  if (this.isNew) {
-    const date = new Date();
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    
-    // Compter les factures du mois pour générer un numéro séquentiel
-    const count = await mongoose.model('Invoice').countDocuments({
-      invoiceNumber: new RegExp(`^INV-${year}${month}`)
-    });
-    
-    const sequence = (count + 1).toString().padStart(4, '0');
-    this.invoiceNumber = `INV-${year}${month}-${sequence}`;
-  };
+// Fonction pour générer le numéro de facture
+async function generateInvoiceNumber() {
+  const date = new Date();
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  
+  // Compter les factures du mois pour générer un numéro séquentiel
+  const count = await mongoose.model('Invoice').countDocuments({
+    invoiceNumber: new RegExp(`^INV-${year}${month}`)
+  });
+  
+  const sequence = (count + 1).toString().padStart(4, '0');
+  return `INV-${year}${month}-${sequence}`;
+}
+
+// Middleware pour générer le numéro de facture avant la validation
+InvoiceSchema.pre('validate', async function(next) {
+  if (this.isNew && !this.invoiceNumber) {
+    try {
+      this.invoiceNumber = await generateInvoiceNumber();
+      next();
+    } catch (error: any) {
+      next(error);
+    }
+  } else {
+    next();
+  }
 });
 
 export const Invoice = mongoose.model<IInvoice>('Invoice', InvoiceSchema);
